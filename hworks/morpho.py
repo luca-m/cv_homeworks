@@ -110,7 +110,7 @@ def IPA_apply(fun,*imgs):
 			params=[p.item(j,i) for p in imgs]
 			nim.itemset((j,i),fun(*params))
 	return nim
-def IPA_conv2(img,mask,op=lambda pix,mask,val:0,pad_type=1,init=lambda px:0):
+def IPA_conv2(img,mask,op=lambda pix,mask,val:0.0,pad_type=1,init=lambda px:0):
 	""" 
 		Performs a convolution-like user defined local operation
 		using zero-padding (pad_type=1) or replicate (pad_type=2) 

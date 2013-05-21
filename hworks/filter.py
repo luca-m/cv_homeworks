@@ -39,14 +39,16 @@ def run(inImPath,outImPath):
 	plots.plotImage(im,"orig")
 	plots.plotImage(im_gfilt,"Gaussian filter")
 	plots.plotImage(im_mean,"Mean Filter")
-	plots.plotImage(im_roberts,"Roberts")
-	plots.plotImage(im_prewitt,"Prewitt (v+o)")
-	plots.plotImage(im_sobel,"Sobel (v+o)")
+	plots.plotImage(4*im_roberts,"Roberts [4*magnification]")
+	plots.plotImage(4*im_prewitt,"Prewitt [4*magnification]")
+	plots.plotImage(4*im_sobel,"Sobel [4*magnification]")
 	plots.showPlots()
 
 
-conv_op=lambda pix,mask,val: max(min(pix*mask+val,255.0),0.0)
+conv_op=lambda pix,mask,val: max(min(float(pix*mask+val),255.0),0.0)
+conv_op_unbound=lambda pix,mask,val:pix*mask+val
 sum_op=lambda a,b,:max(min(a+b,255.0),0.0)
+sum_op_abs=lambda a,b,:max(min(abs(a)+abs(b),255.0),0.0)
 
 def IPA_edge(img,op_type):
 	""" 
@@ -61,31 +63,35 @@ def IPA_edge(img,op_type):
 		return IPA_edge_sobel(img)
 	return None
 def IPA_edge_roberts(img):
-	m1=np.array([ [1.0,0.0],[0.0,-1.0] ])
-	m2=np.array([ [0.0,-1.0],[1.0,0.0] ])
-	return morpho.IPA_conv2(morpho.IPA_conv2(img,m2,op=conv_op,pad_type=2),
-		m1,op=conv_op,pad_type=2)
+	""" Roberts edge detector """
+	m1=np.array([ [1,0],[0,-1] ])
+	m2=np.array([ [0,-1],[1,0] ])
+	im1=morpho.IPA_conv2(img,m1,op=conv_op_unbound,pad_type=2)
+	im2=morpho.IPA_conv2(img,m2,op=conv_op_unbound,pad_type=2)
+	return morpho.IPA_apply(sum_op_abs,im1,im2)
 def IPA_edge_prewitt(img):
-	m1=np.array([ [1.0,0.0,-1.0]])
-	m2=np.transpose(np.array([ [1.0,1.0,1.0] ]))
-	im1=morpho.IPA_conv2(morpho.IPA_conv2(img,m1,op=conv_op,pad_type=2),
-		m2,op=conv_op,pad_type=2)
-	m1=np.transpose(np.array([ [1.0,0.0,-1.0] ]))
-	m2=np.array([ [1.0,1.0,1.0] ])
-	im2=morpho.IPA_conv2(morpho.IPA_conv2(img,m1,op=conv_op,pad_type=2),
-		m2,op=conv_op,pad_type=2)
-	return morpho.IPA_apply(sum_op,im1,im2)
+	""" Prewitt edge detector """
+	m1=np.transpose(np.array([ [1,1,1] ]))
+	m2=np.array([ [1,0,-1]])
+	im1=morpho.IPA_conv2(morpho.IPA_conv2(img,m1,op=conv_op_unbound,pad_type=2),
+		m2,op=conv_op_unbound,pad_type=2)
+	m1=np.transpose(np.array([ [1,0,-1] ]))
+	m2=np.array([ [1,1,1] ])
+	im2=morpho.IPA_conv2(morpho.IPA_conv2(img,m1,op=conv_op_unbound,pad_type=2),
+		m2,op=conv_op_unbound,pad_type=2)
+	return morpho.IPA_apply(sum_op_abs,im1,im2)
 
 def IPA_edge_sobel(img):
-	m1=np.array([[1.0,0.0,-1.0]])
-	m2=np.transpose(np.array([[1.0,2.0,1.0]]))
-	im1=morpho.IPA_conv2(morpho.IPA_conv2(img,m1,op=conv_op,pad_type=2),
-		m2,op=conv_op,pad_type=2)
-	m1=np.transpose(np.array([[1.0,0.0,-1.0]]))
-	m2=np.array([ [1.0,2.0,1.0] ])
-	im2=morpho.IPA_conv2(morpho.IPA_conv2(img,m1,op=conv_op,pad_type=2),
-		m2,op=conv_op,pad_type=2)
-	return morpho.IPA_apply(sum_op,im1,im2)
+	""" Sobel edge detector """
+	m1=np.transpose(np.array([[1,2,1]]))
+	m2=np.array([[1,0,-1]])
+	im1=morpho.IPA_conv2(morpho.IPA_conv2(img,m1,op=conv_op_unbound,pad_type=2),
+		m2,op=conv_op_unbound,pad_type=2)
+	m1=np.transpose(np.array([[1,0,-1]]))
+	m2=np.array([ [1,2,1] ])
+	im2=morpho.IPA_conv2(morpho.IPA_conv2(img,m1,op=conv_op_unbound,pad_type=2),
+		m2,op=conv_op_unbound,pad_type=2)
+	return morpho.IPA_apply(sum_op_abs,im1,im2)
 def	IPA_meanfilter(img,mask_size):
 	""" 
 		Performs mean filtering (mask_size is a vector containing X,Y size, eg. [3 3]) 
@@ -94,8 +100,8 @@ def	IPA_meanfilter(img,mask_size):
 	x,y=mask_size
 	m1=np.array([ [ 1.0/(x*y) for i in range(x) ] ])
 	m2=np.array([ [ 1.0/(x*y) ] for j in range(y) ])
-	return morpho.IPA_conv2(morpho.IPA_conv2(img,m2,op=conv_op,pad_type=2),
-		m1,op=conv_op,pad_type=2)
+	return morpho.IPA_conv2(morpho.IPA_conv2(img,m1,op=conv_op,pad_type=2),
+		m2,op=conv_op,pad_type=2)
 def	IPA_Gfilter(img,mask_size,sigma):
 	""" 
 		Performs Gaussian filtering using sigma 
