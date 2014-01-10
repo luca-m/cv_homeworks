@@ -10,6 +10,8 @@ __license__ = "CC BY-NC-SA"
 import argparse
 import traceback
 import string
+import subprocess
+
 
 import hworks.histo
 import hworks.histo_opencv
@@ -31,6 +33,7 @@ def main():
       hworks.filter.run(args.input,None)
     elif args.homework=='morpho':
       hworks.morpho.run(args.input,None)
+      
   except Exception, e:
     print "EXCEPTION:\n%s"%str(e)
     print "%s"%traceback.format_exc()
