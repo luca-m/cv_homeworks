@@ -61,13 +61,13 @@ def run(inImPath,outImPath):
   [p,v]=IPA_PeakValley(hist_gauss)
 
   print "Plotting.."
+  plots.plotImage(im,"[HISTO] Original Image")
   plots.plotHist(hist_avg,"[HISTO] Averaged Histogram (moving average filter)")
   plots.plotHistPeakValley(hist_gauss,p,v,"Peaks and valley")
   plots.plotHist(hist_norm,"[HISTO] Normalized histogram")
-  plots.plotHist(hist_avg,"[HISTO] Histogram (+Isodata)",thr_isodata)
-  plots.plotHist(hist_avg,"[HISTO] Histogram (+Otsu)",thr_otsu)
   plots.plotHist(hist_cdf,"[HISTO] Cumulative histogram")
-  plots.plotImage(im,"[HISTO] Original Image")
+  plots.plotHist(hist,"[HISTO] Histogram (+Isodata)",thr_isodata)
+  plots.plotHist(hist,"[HISTO] Histogram (+Otsu)",thr_otsu)
   plots.plotImage(im_eq,"[HISTO] Equalized Image")  
   plots.plotImage(im_thr_isodata,"[HISTO] Binarizer (Isodatata)")
   plots.plotImage(im_thr_otsu,"[HISTO] Binarizer (Otsu)")
@@ -117,7 +117,7 @@ def IPA_FindThreshold(hist, type):
     return IPA_FindThreshold_Isodata(hist)
 
 def IPA_FindThreshold_Otsu(hist):
-  """ Otsu thresholding (Unoptimized) """
+  """ Otsu thresholding """
   if not type(hist) == np.array:
     hist=np.array(hist)
   m_sig=float("-inf")
@@ -140,7 +140,7 @@ def IPA_FindThreshold_Otsu(hist):
     mb=sb/wb
     mf=(sall-sb)/wf
     # in-between
-    sig= wb*wf*(mb-mf)**2 
+    sig=wb*wf*(mb-mf)**2 
     # in-between sigma square (unoptimized)
     # sig=np.sum( np.multiply(range(t),hist[:t]) ) * \
     #  np.sum( np.multiply(range(t,len(hist)),hist[t:]) )* \
@@ -160,8 +160,8 @@ def IPA_FindThreshold_Isodata(hist):
   thr_new=np.uint8(127)
   while thr!=thr_new:
     thr=thr_new
-    mb=np.sum( np.multiply(range(thr),hist[:thr]) ) / sum(hist[:thr])
-    mf=np.sum( np.multiply(range(thr,len(hist)),hist[thr:]) ) / sum(hist[thr:])
+    mb=np.sum(np.multiply(range(thr), hist[:thr]) ) / sum(hist[:thr])
+    mf=np.sum(np.multiply(range(thr, len(hist)), hist[thr:]) ) / sum(hist[thr:])
     thr_new=np.uint8((mb+mf)/2)
   print "[HISTO] Isodata threshold={0}".format(thr_new)
   return thr_new
@@ -178,9 +178,9 @@ def IPA_PeakValley(hist):
   #hist_d1[np.where(hist_d1<0.0)]=-1
   for i in range(len(hist_d1)-1):
     if hist_d1[i]>0 and hist_d1[i+1]<=0:
-      peaks+=[i]
-      print "[HISTO] Peek found at {0}".format(i)
-    elif hist_d1[i]<=0 and hist_d1[i+1]>0:
       valley+=[i]
       print "[HISTO] Valley found at {0}".format(i)
+    elif hist_d1[i]<=0 and hist_d1[i+1]>0:
+      peaks+=[i]
+      print "[HISTO] Peek found at {0}".format(i)
   return [peaks,valley]

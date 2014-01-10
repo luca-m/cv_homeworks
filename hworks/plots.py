@@ -15,9 +15,9 @@ def plotHist(hist, title="", thrshld=None):
 	global FIG
 	plt.figure(FIG)
 	for i in range(0, len(hist)):
-		plt.vlines(i, 0, hist[i])
+		plt.vlines(i, 0, hist[i], colors='k', linestyles='dotted')
 	if thrshld is not None:
-		plt.vlines(thrshld,-max(hist)/2,0)
+		plt.vlines(thrshld, 0, hist[thrshld], colors='red', linestyles='solid')
 	plt.title(title)
 	FIG+=1
 
@@ -27,11 +27,11 @@ def plotHistPeakValley (hist, peaks, valley, title=""):
 	plt.figure(FIG)
 	m=max(hist)
 	for i in range(0, len(hist)):
-		plt.vlines(i, 0, hist[i])
+		plt.vlines(i, 0, hist[i], colors='k', linestyles='dotted')
 	for i in peaks:
-		plt.vlines(i, m, m)
+		plt.vlines(i, 0, hist[i], colors='red', linestyles='solid' )
 	for i in valley:
-		plt.vlines(i, -100, -1100)
+		plt.vlines(i, 0, hist[i], colors='blue',linestyles='solid' )
 	plt.title(title)
 	FIG+=1
 
