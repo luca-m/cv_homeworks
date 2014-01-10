@@ -10,8 +10,8 @@ import matplotlib.pyplot as plt
 
 FIG=0
 
-def plotHist (hist,title="",thrshld=None):
-	""" """
+def plotHist(hist, title="", thrshld=None):
+	""" Plot an Histogram """
 	global FIG
 	plt.figure(FIG)
 	for i in range(0, len(hist)):
@@ -20,7 +20,8 @@ def plotHist (hist,title="",thrshld=None):
 		plt.vlines(thrshld,-max(hist)/2,0)
 	plt.title(title)
 	FIG+=1
-def plotHistPeakValley (hist,peaks,valley,title=""):
+
+def plotHistPeakValley (hist, peaks, valley, title=""):
 	""" """
 	global FIG
 	plt.figure(FIG)
@@ -28,12 +29,13 @@ def plotHistPeakValley (hist,peaks,valley,title=""):
 	for i in range(0, len(hist)):
 		plt.vlines(i, 0, hist[i])
 	for i in peaks:
-		plt.vlines(i, m, m+1009)
+		plt.vlines(i, m, m)
 	for i in valley:
 		plt.vlines(i, -100, -1100)
 	plt.title(title)
 	FIG+=1
-def plotImage(im,title=""):
+
+def plotImage(im, title=""):
 	""" """
 	global FIG
 	plt.figure(FIG)
@@ -41,6 +43,7 @@ def plotImage(im,title=""):
 	plt.set_cmap('gray')
 	plt.title(title)
 	FIG+=1
+
 def showPlots():
 	""" """
 	plt.show()
