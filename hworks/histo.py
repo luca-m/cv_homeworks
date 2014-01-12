@@ -40,9 +40,12 @@ def run(inImPath,outImPath):
   print "[HISTO] IPA_histo"
   hist=IPA_histo(im,ranges)
   print "[HISTO] IPA_histoConvolution1D Moving Average"
-  hist_avg=IPA_histoConvolution1D(hist,[1/11.0]*11)
+  linear_kernel=[1/11.0]*11
+  hist_avg=IPA_histoConvolution1D(hist,linear_kernel)
   print "[HISTO] IPA_histoConvolution1D Gaussian"
-  hist_gauss=IPA_histoConvolution1D(hist,np.array([1,2,3,4,5,4,3,2,1]))
+  gauss_kernel=[1,2,3,4,5,4,3,2,1] 
+  gauss_kernel_norm= [float(x)/sum(gauss_kernel) for x in gauss_kernel]
+  hist_gauss=IPA_histoConvolution1D(hist,np.array(gauss_kernel_norm))
   print "[HISTO] IPA_histoNorm"
   hist_norm=IPA_histoNorm(hist,im.size)
   print "[HISTO] IPA_histoCdf"
@@ -50,24 +53,26 @@ def run(inImPath,outImPath):
   print "[HISTO] IPA_histoTransform"
   im_eq=IPA_histoTransform(im,hist_cdf)
   print "[HISTO] IPA_FindThreshold_Isodata"
-  thr_isodata=IPA_FindThreshold_Isodata(hist_avg)
+  thr_isodata=IPA_FindThreshold_Isodata(hist)
   print "[HISTO] IPA_Bynarize"
   im_thr_isodata=IPA_Bynarize(im,thr_isodata)
   print "[HISTO] IPA_FindThreshold_Otsu"
-  thr_otsu=IPA_FindThreshold_Otsu(hist_avg)
+  thr_otsu=IPA_FindThreshold_Otsu(hist)
   print "[HISTO] IPA_Bynarize"
   im_thr_otsu=IPA_Bynarize(im,thr_otsu)
   print "[HISTO] IPA_histoTransform"
   [p,v]=IPA_PeakValley(hist_gauss)
 
   print "Plotting.."
-  plots.plotImage(im,"[HISTO] Original Image")
+  plots.plotHist(hist,"[HISTO] Histogram")
   plots.plotHist(hist_avg,"[HISTO] Averaged Histogram (moving average filter)")
-  plots.plotHistPeakValley(hist_gauss,p,v,"Peaks and valley")
+  plots.plotHist(hist_gauss,"[HISTO] Smoothed Histogram (gaussian filter)")
   plots.plotHist(hist_norm,"[HISTO] Normalized histogram")
   plots.plotHist(hist_cdf,"[HISTO] Cumulative histogram")
   plots.plotHist(hist,"[HISTO] Histogram (+Isodata)",thr_isodata)
   plots.plotHist(hist,"[HISTO] Histogram (+Otsu)",thr_otsu)
+  plots.plotHistPeakValley(hist_gauss,p,v,"[HISTO] Peaks and valley (on gaussian filtered histogram)")
+  plots.plotImage(im,"[HISTO] Original Image")
   plots.plotImage(im_eq,"[HISTO] Equalized Image")  
   plots.plotImage(im_thr_isodata,"[HISTO] Binarizer (Isodatata)")
   plots.plotImage(im_thr_otsu,"[HISTO] Binarizer (Otsu)")
@@ -160,8 +165,8 @@ def IPA_FindThreshold_Isodata(hist):
   thr_new=np.uint8(127)
   while thr!=thr_new:
     thr=thr_new
-    mb=np.sum(np.multiply(range(thr), hist[:thr]) ) / sum(hist[:thr])
-    mf=np.sum(np.multiply(range(thr, len(hist)), hist[thr:]) ) / sum(hist[thr:])
+    mb=np.sum(np.multiply(range(thr), hist[:thr])) / float(sum(hist[:thr]))
+    mf=np.sum(np.multiply(range(thr, len(hist)), hist[thr:])) / float(sum(hist[thr:]))
     thr_new=np.uint8((mb+mf)/2)
   print "[HISTO] Isodata threshold={0}".format(thr_new)
   return thr_new

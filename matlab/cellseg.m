@@ -16,7 +16,7 @@ function ret=cellseg(impath)
  	% Enhanche local contrast for fg/bg distinction and
  	cells_enanch=en_local_constrast(cells,se1);
  	% A little constrast refinement
- 	cells_enanch=en_local_constrast(cells_enanch,strel('square',3)); 
+ 	%cells_enanch=en_local_constrast(cells_enanch,strel('square',3)); 
  	% Equalization
  	cells_enanch=imadjust(cells_enanch);
  	% Enhance local contrast around cells (fg/bg)
@@ -24,9 +24,9 @@ function ret=cellseg(impath)
  	% Enanche constrast through line neighborhood in order to maximize
  	% constrast between blobs separations (enhanche borders)
  	cells_reconstr=en_local_constrast(cells_reconstr,strel('line',0,CELL_ESTIMATED_DIM));
+ 	cells_reconstr=en_local_constrast(cells_reconstr,strel('line',60,CELL_ESTIMATED_DIM));
  	cells_reconstr=en_local_constrast(cells_reconstr,strel('line',90,CELL_ESTIMATED_DIM));
  	cells_reconstr=en_local_constrast(cells_reconstr,strel('line',120,CELL_ESTIMATED_DIM));
- 	cells_reconstr=en_local_constrast(cells_reconstr,strel('line',60,CELL_ESTIMATED_DIM));
  	% A little constrast refinement
  	cells_reconstr=en_local_constrast(cells_reconstr,strel('square',3));
  	% Binarization using OTSU thresholding (FG/BG segmentation)
@@ -36,13 +36,13 @@ function ret=cellseg(impath)
  	% Remove small bridges
  	cells_morpho_r=imopen(cells_morpho_r,strel('square',5));
  	% extract perimeter
- 	cells_morpho_perim=bwperim(cells_morpho_r,8);
+ 	cells_morpho_perim=bwperim(cells_morpho_r,4);
  
  	figure
  	subplot(2,3,1),subimage(cells),title('original');
- 	subplot(2,3,2),subimage(cells_enanch),title('local enanchment + equalization');
- 	subplot(2,3,3),subimage(cells_reconstr),title('border enhanchment');
- 	subplot(2,3,4),subimage(cells_morpho_r),title('thresholding and opening');
+ 	subplot(2,3,2),subimage(cells_enanch),title('enanche local contrast, equalize');
+ 	subplot(2,3,3),subimage(cells_reconstr),title('enanche blob border (multiple top/bottom hat)');
+ 	subplot(2,3,4),subimage(cells_morpho_r),title('otsu thresholding, filling holes and opening');
  	subplot(2,3,5),subimage(cells_morpho_perim),title('perimeter');
  	%subplot(2,3,6),subimage(cells_morpho_perim);
 
