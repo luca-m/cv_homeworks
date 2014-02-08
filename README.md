@@ -27,7 +27,7 @@ Homework 1,2 and 3 have been developed in Python, usage:
          -h, --help            show this help message and exit
 
 
-_DISCLAIMER: Convolution in Python is pretty __SLOW__.. 
+_DISCLAIMER: Convolution in Python is pretty SLOW.. 
 This does not mean that python cannot be used 
 for this kind of computation but also mean that we should use libraries like 'numpy' or 'cv' which provide
 access to native algorithm implementation (read 'C/C++') directly from python.
