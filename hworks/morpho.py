@@ -22,8 +22,8 @@ MATHEMATICAL MORPHOLOGY
   IPA_top-bot_enhance(img,mask)
   IPA_imreconstruct(marker,mask,SE1)
 
-NOTE: input image is loaded in grayscale and thresholded at with OTSU method 
-  (after a gaussian smoothing).
+NOTE: input image is loaded in grayscale and thresholded at with OTSU method (after a gaussian smoothing).
+
 """
 
 import cv2
@@ -41,7 +41,9 @@ def run(inImPath,outImPath):
   square_3x3=IPA_se_square(3)
   
   print "[MORPHO] IPA_im2bw"
-  im_bin=IPA_im2bw(im,histo.IPA_FindThreshold_Otsu(histo.IPA_histoConvolution1D(histo.IPA_histo(im, rang=[0,255]),[1,2,3,4,5,4,3,2,1])))
+  gauss_kernel=[1,2,3,4,5,4,3,2,1] 
+  gauss_kernel_norm= [float(x)/sum(gauss_kernel) for x in gauss_kernel]
+  im_bin=IPA_im2bw(im,histo.IPA_FindThreshold_Otsu(histo.IPA_histoConvolution1D(histo.IPA_histo(im, rang=[0,255]),gauss_kernel_norm)))
   #im_bin=IPA_im2bw(im,1)
   # Binary ops
   print "[MORPHO] IPA_dilate"
@@ -107,9 +109,10 @@ def IPA_apply(fun, *imgs):
   nim=np.zeros((y,x))
   for j in range(y):
     for i in range(x):
-      params=[p.item(j,i) for p in imgs]
-      nim.itemset((j,i),fun(*params))
-  return  nim #np.array(map(fun, imgs ) )
+      params=[p.item(j,i) for p in imgs]  # Pick the j,i pixel of each image in imgs
+      nim.itemset((j,i),fun(*params))     # pass these pixels to the function and put the 
+                                          # result in the j,i pixel of the new image
+  return nim    # Otherwise np.array(map(fun, imgs))
 
 def IPA_conv2(img, mask, op=lambda px, mask, val:0.0 ,pad_type=1, init=lambda px:0):
   """ 
@@ -119,8 +122,10 @@ def IPA_conv2(img, mask, op=lambda px, mask, val:0.0 ,pad_type=1, init=lambda px
       zero-padding  (pad_type=1)
       replicate     (pad_type=2)
     
-    The user defined operation must return a float value and 
-    must handle 3 input parameters: pixel, mask, prev_value
+    The user defined operation MUST return a float value and 
+    MUST handle 3 input parameters: 
+        
+        pixel, mask, prev_value
 
     Also user may specify an initialization function that could
     be useful to specify in case of erosion operation. 
@@ -140,11 +145,9 @@ def IPA_conv2(img, mask, op=lambda px, mask, val:0.0 ,pad_type=1, init=lambda px
       for p in range(my):
         for q in range(mx):
           if i+p-mcy<0 or j+q-mcx<0 or i+p-mcy>=iy or j+q-mcx>=ix:
-            if pad_type==1:
-              # 0-padding
+            if pad_type==1:       # 0-padding
               impix=0
-            elif pad_type==2:
-              # repricate-padding
+            elif pad_type==2:     # repricate-padding
               ip,iq=(0,0)
               if i+p-mcy<0:
                 ip=i+p+mcy 
@@ -185,11 +188,11 @@ def IPA_erode(img,mask):
   return IPA_conv2(img, mask, op=lambda px,msk,val:min(msk*px,val), pad_type=2,init=lambda px:px)
 
 def IPA_closing(img,mask):
-  """ """
+  """ Closing """
   return IPA_erode(IPA_dilate(img,mask),mask)
 
 def IPA_opening(img,mask):
-  """ """
+  """ Opening """
   return IPA_dilate(IPA_erode(img,mask),mask)
 
 def IPA_hitmiss(img,SE1,SE2,fun=min):
@@ -206,7 +209,10 @@ def IPA_bothat(img,mask):
 
 def IPA_topbot_enhance(img,mask):
   """ TopHat BottomHat enanchment """
-  return IPA_apply(lambda a,b:max(a-b,0), IPA_apply(lambda a,b:min(a+b,255), img, IPA_tophat(img,mask)), IPA_bothat(img,mask))
+  #  - (+ img tophat) bothat
+  return IPA_apply(lambda a,b:max(a-b,0),     
+                          IPA_apply(lambda a,b:min(a+b,255), img, IPA_tophat(img,mask)), 
+                          IPA_bothat(img,mask))
 
 def IPA_imreconstruct(marker, mask, SE, method='dilate', niter=4):
   """ Reconstruction by geodesic dilation/erosion (dilate/erode) """

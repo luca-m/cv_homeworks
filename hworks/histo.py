@@ -98,20 +98,22 @@ def IPA_histoNorm(hist,nvals=None):
 
 def IPA_histoConvolution1D(hist, mask):
   """ 0-padded 1D convolution """
-  return np.convolve(np.array( [0.0]*(len(mask)/2)+hist.tolist()+[0.0]*(len(mask)/2)),mask,'valid')
+  return np.convolve(np.array([0.0]*(len(mask)/2)+hist.tolist()+[0.0]*(len(mask)/2)),mask,'valid')   # adding 0-padding, using numpy convolution implementation (see other assignment for custom implementation) 
 
 def IPA_histoCdf(hist):
   """ histogram CDF """
-  return np.cumsum(hist)
+  return np.cumsum(hist)    # numpy implementation
 
 def IPA_histoTransform(im, new_histo):
   """ Histogram transformation function """
-  # This is the numpy magic..
-  return new_histo[im]
+  return new_histo[im]    # This is the numpy magic.. it performs:
+                          # for each x,y in im:
+                          #   g(x,y) = histo[ im(x,y) ]
+                          # return g
 
 def IPA_Bynarize(im, threshold):
   """ Bynarize a Greyscale image (assumption: UINT8 image)"""
-  th=np.array([0]*(threshold) + [1]*(255-threshold) ) 
+  th=np.array([0]*(threshold)+[1]*(255-threshold))    # + is concatenation of array, * means repeat element 
   return th[im]
 
 def IPA_FindThreshold(hist, type):
@@ -178,9 +180,6 @@ def IPA_PeakValley(hist):
   hist_d1=IPA_histoConvolution1D(hist,[-1.0,1.0]) # first derivate of the histo
   valley=[]
   peaks=[]
-  #hist_d1[np.where(hist_d1>0.0)]=1
-  #hist_d1[np.where(hist_d1==0.0)]=0
-  #hist_d1[np.where(hist_d1<0.0)]=-1
   for i in range(len(hist_d1)-1):
     if hist_d1[i]>0 and hist_d1[i+1]<=0:
       valley+=[i]

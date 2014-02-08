@@ -26,7 +26,6 @@ NOTE: input image is loaded in grayscale
 """
 
 import cv2
-#import cv
 import numpy as np
 import plots
 
