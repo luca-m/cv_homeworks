@@ -113,7 +113,7 @@ def IPA_histoTransform(im, new_histo):
 
 def IPA_Bynarize(im, threshold):
   """ Bynarize a Greyscale image (assumption: UINT8 image)"""
-  th=np.array([0]*(threshold)+[1]*(255-threshold))    # + is concatenation of array, * means repeat element 
+  th=np.array([0]*(threshold)+[1]*(256-threshold))    # + is concatenation of array, * means repeat element 
   return th[im]
 
 def IPA_FindThreshold(hist, type):
