@@ -71,7 +71,7 @@ def run(inImPath,outImPath):
   plots.plotHist(hist_cdf,"[HISTO] Cumulative histogram")
   plots.plotHist(hist,"[HISTO] Histogram (+Isodata)",thr_isodata)
   plots.plotHist(hist,"[HISTO] Histogram (+Otsu)",thr_otsu)
-  plots.plotHistPeakValley(hist_gauss,p,v,"[HISTO] Peaks and valley (on gaussian filtered histogram)")
+  plots.plotHistPeakValley(hist,p,v,"[HISTO] Peaks and valley (on gaussian filtered histogram)")
   plots.plotImage(im,"[HISTO] Original Image")
   plots.plotImage(im_eq,"[HISTO] Equalized Image")  
   plots.plotImage(im_thr_isodata,"[HISTO] Binarizer (Isodatata)")
