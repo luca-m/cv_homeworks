@@ -187,4 +187,16 @@ def IPA_PeakValley(hist):
     elif hist_d1[i]<=0 and hist_d1[i+1]>0:
       peaks+=[i]
       print "[HISTO] Peek found at {0}".format(i)
+
+  if len(valley)>1:
+    valley_dist=0.
+    num=0.
+    for i in range(1,len(valley)):
+      valley_dist+=valley[i]-valley[i-1]
+      num+=1
+    avg_dist= valley_dist/num
+    if avg_dist <= len(hist)*0.10:     # if the width of the peak results to be too small with respect to the whole histogram, filter and recalculate.   
+      gauss_kernel=[1,2,3,4,5,4,3,2,1] 
+      gauss_kernel_norm= [float(x)/sum(gauss_kernel) for x in gauss_kernel]
+      return IPA_PeakValley(IPA_histoConvolution1D(hist,gauss_kernel_norm))
   return [peaks,valley]
